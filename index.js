@@ -5,10 +5,10 @@ const cookieParser = require('cookie-parser')();
 
 const app = express();
 const routes = require('./src/routes');
-// const {
-//   MongoService,
-//   RedisService,
-// } = require('./src/services/index');
+const {
+  MongoService,
+  // RedisService,
+} = require('./src/services/index');
 
 const {
   PORT = 3000,
@@ -17,7 +17,7 @@ const {
   REDIS_CONNECT,
 } = process.env;
 
-// if (MONGO_CONNECT) MongoService.connect();
+if (MONGO_CONNECT) MongoService.connect();
 // if (REDIS_CONNECT) RedisService.connect();
 
 app.use(bodyParser);
