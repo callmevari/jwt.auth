@@ -7,7 +7,7 @@ const app = express();
 const routes = require('./src/routes');
 const {
   MongoService,
-  // RedisService,
+  RedisService,
 } = require('./src/services/index');
 
 const {
@@ -18,7 +18,7 @@ const {
 } = process.env;
 
 if (MONGO_CONNECT) MongoService.connect();
-// if (REDIS_CONNECT) RedisService.connect();
+if (REDIS_CONNECT) RedisService.connect();
 
 app.use(bodyParser);
 app.use(cookieParser);
