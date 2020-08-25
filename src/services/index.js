@@ -2,6 +2,6 @@ const MongoService = require('./MongoService');
 const RedisService = require('./RedisService');
 
 module.exports = {
-  MongoService,
-  RedisService,
+  MongoService, // as DataBaseService
+  RedisService, // as CacheService
 };
