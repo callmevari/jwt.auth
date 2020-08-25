@@ -1,3 +1,5 @@
+const { RegisterSchema } = require('../../schemas');
+
 class UserController {
 
   login(req, res, next) {
@@ -12,6 +14,8 @@ class UserController {
     try {
       const { email, password } = req.body;
       // TODO: we'll validate the fields here
+      const validate = RegisterSchema.validate({ email, password });
+      if (validate.error) throw new Error(validate.error.message);
       // TODO: we'll search for a user with the same email
       // TODO: we'll hash the password
       // TODO: we'll create the user in the db
