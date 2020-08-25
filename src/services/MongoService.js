@@ -30,6 +30,11 @@ class MongoService {
   close() {
     return this.client.close();
   }
+
+  get(collectionName, query) {
+    const collection = this.db.collection(collectionName);
+    return collection.findOne(query);
+  }
 };
 
 module.exports = new MongoService();

@@ -1,3 +1,4 @@
+const { UserService } = require('../../services');
 const { RegisterSchema } = require('../../schemas');
 
 class UserController {
@@ -10,16 +11,18 @@ class UserController {
     }
   }
 
-  register(req, res, next) {
+  async register(req, res, next) {
     try {
       const { email, password } = req.body;
-      // TODO: we'll validate the fields here
+      // validate the fields
       const validate = RegisterSchema.validate({ email, password });
       if (validate.error) throw new Error(validate.error.message);
       // TODO: we'll search for a user with the same email
+      const userFound = await UserService.get(email);
+      if (userFound) throw new Error('User already exists');
       // TODO: we'll hash the password
       // TODO: we'll create the user in the db
-      return res.json({});
+      return res.json({ message: "User created successfuly" });
     } catch (err) {
       next(err);
     }
