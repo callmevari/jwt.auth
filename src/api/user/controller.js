@@ -1,4 +1,4 @@
-const { UserService } = require('../../services');
+const { UserService, AuthService } = require('../../services');
 const { RegisterSchema, LoginSchema } = require('../../schemas');
 const { CryptoUtil } = require('../../utils');
 
@@ -21,11 +21,15 @@ class UserController {
       const checkPassword = await CryptoUtil.bcryptCompareHash(password, hashedPassword);
       if (!checkPassword) throw new Error('Password is invalid');
 
-      // TODO: jwt tokens (both)
+      // create jwt tokens (both)
+      delete user.password;
+      const accessToken = await AuthService.createToken(user, 'access', process.env.TOKEN_EXPIRE_SECONDS);
+      const refreshToken = await AuthService.createToken(user, 'refresh');
+
       // TODO: save the refresh token in redis
       // TODO: store the tokens in client side cookies
 
-      return res.send('UserController.login not implemented yet');
+      return res.json({ accessToken, refreshToken });
     } catch (err) {
       next(err);
     }
