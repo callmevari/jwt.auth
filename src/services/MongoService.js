@@ -35,6 +35,14 @@ class MongoService {
     const collection = this.db.collection(collectionName);
     return collection.findOne(query);
   }
+
+  async insert(collectionName, body) {
+    const collection = this.db.collection(collectionName);
+    const { ops } = await collection.insertOne(body);
+    return {
+      data: ops,
+    };
+  }
 };
 
 module.exports = new MongoService();
