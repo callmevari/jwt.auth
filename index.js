@@ -26,5 +26,5 @@ app.use('/api', routes);
 app.use('/', (req, res) => res.redirect('/api'));
 
 app.listen(PORT, () => {
-  console.log(`🚀  Server ready at http://localhost:${PORT} in ${NODE_ENV} mode`);
+  console.log(`🚀 Server ready at http://localhost:${PORT} in ${NODE_ENV} mode`);
 });

@@ -1,5 +1,6 @@
 const { UserService } = require('../../services');
 const { RegisterSchema } = require('../../schemas');
+const { CryptoUtil } = require('../../utils');
 
 class UserController {
 
@@ -17,12 +18,18 @@ class UserController {
       // validate the fields
       const validate = RegisterSchema.validate({ email, password });
       if (validate.error) throw new Error(validate.error.message);
-      // TODO: we'll search for a user with the same email
+      // look up for a user with the same email
       const userFound = await UserService.get(email);
       if (userFound) throw new Error('User already exists');
-      // TODO: we'll hash the password
+      // hash the password
+      const hashedPassword = await CryptoUtil.bcryptHash(password);
+      if (!hashedPassword) throw new Error('Error while hashing the password');
       // TODO: we'll create the user in the db
-      return res.json({ message: "User created successfuly" });
+      return res.json({ 
+        message: "User created successfuly",
+        email,
+        hashedPassword
+      });
     } catch (err) {
       next(err);
     }

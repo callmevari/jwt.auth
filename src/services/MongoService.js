@@ -20,7 +20,7 @@ class MongoService {
       const { client } = this;
       await client.connect();
       this.db = client.db(MONGO_DATABASE);
-      console.log(`🍃  Connected to ${this.db.databaseName} database`);
+      console.log(`🍃 Connected to ${this.db.databaseName} database`);
     } catch (err) {
       console.log(`Error while trying to connect to MongoDB, application will crash`, err);
       process.exit(1);
