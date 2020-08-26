@@ -1,4 +1,4 @@
-const { UserService, AuthService } = require('../../services');
+const { UserService, AuthService, RedisService } = require('../../services');
 const { RegisterSchema, LoginSchema } = require('../../schemas');
 const { CryptoUtil } = require('../../utils');
 
@@ -7,6 +7,11 @@ class UserController {
   async login(req, res, next) {
     try {
       const { email, password } = req.body;
+      const {
+        REDIS_TOKEN_LIST,
+        TOKEN_EXPIRE_MILISECONDS,
+        TOKEN_EXPIRE_SECONDS
+      } = process.env;
 
       // validate the fields
       const validate = LoginSchema.validate({ email, password });
@@ -23,11 +28,18 @@ class UserController {
 
       // create jwt tokens (both)
       delete user.password;
-      const accessToken = await AuthService.createToken(user, 'access', process.env.TOKEN_EXPIRE_SECONDS);
+      const accessToken = await AuthService.createToken(user, 'access', TOKEN_EXPIRE_SECONDS);
       const refreshToken = await AuthService.createToken(user, 'refresh');
 
-      // TODO: save the refresh token in redis
-      // TODO: store the tokens in client side cookies
+      // save the refresh token in redis
+      let refreshTokenList = await RedisService.get(REDIS_TOKEN_LIST);
+      if (refreshTokenList) refreshTokenList.push(refreshToken);
+      else refreshTokenList = [refreshToken];
+      await RedisService.set(process.env.REDIS_TOKEN_LIST, refreshTokenList);
+
+      // store the tokens in client side cookies
+      res.cookie('accessToken', accessToken, { maxAge: TOKEN_EXPIRE_MILISECONDS });
+      res.cookie('refreshToken', refreshToken);
 
       return res.json({ accessToken, refreshToken });
     } catch (err) {

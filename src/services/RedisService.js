@@ -24,6 +24,26 @@ class RedisService {
       process.exit(1);
     }
   }
+
+  get(key) {
+    return new Promise((resolve, reject) => {
+      this.client.get(key, (err, val) => {
+        if (err || val === null) {
+          if (err) reject (err);
+          else resolve(false); // key is missing / not exists
+        } else resolve(JSON.parse(val));
+      });
+    });
+  }
+
+  set(key, value) {
+    return new Promise((resolve, reject) => {
+      this.client.set(key, JSON.stringify(value), (err) => {
+        if (err) reject(err);
+        else resolve(true);
+      });
+    });
+  }
 };
 
 module.exports = new RedisService();
