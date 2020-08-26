@@ -1,11 +1,22 @@
 const { UserService } = require('../../services');
-const { RegisterSchema } = require('../../schemas');
+const { RegisterSchema, LoginSchema } = require('../../schemas');
 const { CryptoUtil } = require('../../utils');
 
 class UserController {
 
   login(req, res, next) {
     try {
+      const { email, password } = req.body;
+
+      // validate the fields
+      const validate = LoginSchema.validate({ email, password });
+      if (validate.error) throw new Error(validate.error.message);
+
+      // TODO: get user from db and authenticate it
+      // TODO: jwt tokens (both)
+      // TODO: save the refresh token in redis
+      // TODO: store the tokens in client side cookies
+
       return res.send('UserController.login not implemented yet');
     } catch (err) {
       next(err);
@@ -31,7 +42,7 @@ class UserController {
       // create the user in the db
       const user = await UserService.create({ ...req.body, password: hashedPassword });
       if (!user) throw new Error('Error while creating the user');
-      
+
       return res.json({ 
         message: `User with email ${email} created successfuly`
       });
