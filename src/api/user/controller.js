@@ -77,7 +77,20 @@ class UserController {
 
   panel(req, res, next) {
     try {
-      return res.send('/api/user/panel endpoint is NOT implemented yet');
+      return res.send('Welcome to /api/user/panel endpoint');
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async logout(req, res, next) {
+    try {
+      res.clearCookie('accessToken');
+      res.clearCookie('refreshToken');
+      const { refreshToken } = req.cookies;
+      if (!refreshToken) throw new Error('There is not a refresh token in the request');
+      await AuthService.destroyRefreshToken(refreshToken);
+      return res.status(204).send('Logout successful');
     } catch (err) {
       next(err);
     }

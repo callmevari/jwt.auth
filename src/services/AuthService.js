@@ -8,7 +8,7 @@ class AuthService {
     return jwt.sign(payload, tokenSecret);
   }
 
-  validateToken(req, res, next) {
+  async validateToken(req, res, next) {
     const {
       accessToken,
       refreshToken,
@@ -39,10 +39,35 @@ class AuthService {
     }
 
     // case 2: user doesn't have accessToken, but has refreshToken
-
+    if (!accessToken && refreshToken) {
+      let refreshTokenList = await RedisService.get(REDIS_TOKEN_LIST);
+      if (!refreshTokenList) return res.status(500).send('refreshTokenList does not exists');
+      
+      if (refreshTokenList.includes(refreshToken)) {
+        jwt.verify(refreshToken, TOKEN_REFRESH_SECRET, async (err, user) => {
+          if (err) return res.status(401).json(err);
+          delete user.iat;
+          const newAccessToken = await this.createToken(user, 'access', TOKEN_EXPIRE_SECONDS);
+          res.cookie('accessToken', newAccessToken, { maxAge: TOKEN_EXPIRE_MILISECONDS });
+          req.user = user;
+          return next();
+        });
+      } else return res.status(401).send('Unauthorized');
+    }
 
     // case 3: user doesn't have tokens
+    if (!accessToken && !refreshToken) {
+      return res.status(403).send('Forbidden');
+    }
+  }
 
+  async destroyRefreshToken(refreshToken) {
+    let refreshTokenList = await RedisService.get(process.env.REDIS_TOKEN_LIST);
+    if (!refreshTokenList) throw new Error("The refresh token list doesn't exist");
+    if (refreshTokenList.includes(refreshToken)) {
+      refreshTokenList = refreshTokenList.filter((token) => token !== refreshToken);
+      return RedisService.set(process.env.REDIS_TOKEN_LIST, refreshTokenList);
+    } throw new Error('The refresh token is invalid');
   }
 };
 
