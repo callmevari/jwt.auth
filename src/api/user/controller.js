@@ -4,7 +4,7 @@ const { CryptoUtil } = require('../../utils');
 
 class UserController {
 
-  login(req, res, next) {
+  async login(req, res, next) {
     try {
       const { email, password } = req.body;
 
@@ -12,7 +12,15 @@ class UserController {
       const validate = LoginSchema.validate({ email, password });
       if (validate.error) throw new Error(validate.error.message);
 
-      // TODO: get user from db and authenticate it
+      // look up for a user with the same email
+      const user = await UserService.get(email);
+      if (!user) throw new Error('User not exists');
+
+      // authenticate
+      const { password: hashedPassword } = user;
+      const checkPassword = await CryptoUtil.bcryptCompareHash(password, hashedPassword);
+      if (!checkPassword) throw new Error('Password is invalid');
+
       // TODO: jwt tokens (both)
       // TODO: save the refresh token in redis
       // TODO: store the tokens in client side cookies
