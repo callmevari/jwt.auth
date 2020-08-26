@@ -75,6 +75,13 @@ class UserController {
     }
   }
 
+  panel(req, res, next) {
+    try {
+      return res.send('/api/user/panel endpoint is NOT implemented yet');
+    } catch (err) {
+      next(err);
+    }
+  }
 };
 
 module.exports = new UserController();
